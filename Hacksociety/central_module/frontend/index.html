@@ -1,0 +1,138 @@
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="js/bootstrap.min.js"></script>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Room Status</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="" crossorigin="anonymous"></script>
+  <script>
+
+   setInterval(function(){
+    jQuery.ajax({
+              url: 'http://10.5.4.250:5000/',
+              type: "GET",
+
+              contentType: 'application/json; charset=utf-8',
+              success: function(resultData) {                
+                  for (i = 0; i < resultData.length; i++){
+                      var div = document.getElementById('sala'+(i + 1));
+                      if (resultData[i] == '0') {
+                        div.style.backgroundColor = 'green';
+                      }
+                      else {
+                        div.style.backgroundColor = 'red'; 
+                      }
+                  }
+              },
+              error : function(jqXHR, textStatus, errorThrown) {
+                console.log(jqXHR);
+              },
+
+              timeout: 2000,
+        });
+   }, 2000);
+  </script>
+</head>
+<body>
+		<div class="container">
+			<br>
+			<div class="navbar navbar-default" style="background-color: black;">
+				<div class="navbar-brand">|QUIN motus|</div>
+				<ul class="nav navbar-nav pull-right">
+					<li><a href="#">Home</a></li>
+					<li><a href="#">Info</a></li>
+					<li><a href="login.php">Admin</a></li>
+				</ul>
+			</div>
+			<br>
+
+	<div class="container">
+		<div class="page-header">
+		  <h1>Room Status</h1>
+			</div>
+
+	<div class="jumbotron" style="background-color:black; color:white;">
+		<div class="row">	
+      
+  <div class="col-sm-6 col-md-3">
+    <div class="thumbnail" id="sala1" style="background-color:black; border-color:white;">
+      <div class="caption" style="color:white">
+        <h3>Sala 1</h3>
+        <p>Babbage 1</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-3">
+    <div class="thumbnail" id="sala2" style="background-color:black; border-color:white;">
+      <div class="caption" style="color:white">
+        <h3>Sala 2</h3>
+        <p>Babbage 2</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-3">
+    <div class="thumbnail" id="sala3" style="background-color:black; border-color:white;">
+      <div class="caption" style="color:white">
+        <h3>Sala 3</h3>
+        <p>Hawking</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-3">
+    <div class="thumbnail" id="sala4" style="background-color:black; border-color:white;">
+      <div class="caption" style="color:white">
+        <h3>Sala 4</h3>
+        <p>Coanda</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-md-3">
+    <div class="thumbnail" id="sala5" style="background-color:black; border-color:white;">
+      <div class="caption" style="color:white">
+        <h3>Sala 5</h3>
+        <p>Tesla</p>
+      </div>
+    </div>
+  </div>
+
+  </div>
+  </div>
+  <br><br>
+	<script>
+	// nu mere daca nu ai site ca mine :>
+	function loadDoc() {
+	  var xhttp = new XMLHttpRequest();
+	  xhttp.onreadystatechange = function() {
+	    if (this.readyState == 4 && this.status == 200) {
+	      // aicia facem minunile :> :> :>
+	      document.getElementById("demo").innerHTML = this.responseText;
+	    }
+	  };
+	  xhttp.open("GET", "ajax_info.txt", true);
+	  xhttp.send();
+	}
+
+	function changeToInvalid(id) {
+		var idToChange = "sala" + id;
+		var div = document.getElementById(idToChange);
+		div.style.backgroundColor = 'blue';
+	}
+	</script>
+</body>
+</html>
+

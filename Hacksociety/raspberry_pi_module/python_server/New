@@ -1,0 +1,2 @@
+$echo "hello" index.txt
+$python -m SimpleHTTPServer

@@ -1,0 +1,29 @@
+- castling support
+  - if not done before
+  - if there is space between the rook and the king
+  - if the king and the rook were not moved
+  - maybe add a side button to do it? or figure out a way to do it from the king class
+					 - probably overload the move function from the king and
+					   give it access to the array of pieces also?
+- en passant support
+  - if the player did not do an en passant before
+  - if the position of the pawns is correct
+  - available one turn only
+- pawn promotion support
+- make the game stop when the timer is done
+  - determine who won
+  - maybe give the option to start a new game 
+  - or just exit
+- funtion that determines all the posible moves for the current player
+- check and chekmate
+  - make available moves also keep track of checks (not allow moves that lead in (still)
+						    beeing in check)
+  - for check add the atacked king to the available positions in the board
+  - checkmate - no available moves and in check
+-stall
+  - no available moves but not in check
+- theme change support
+- ai
+- multiplayer
+- login system with databases
+- undo functionality

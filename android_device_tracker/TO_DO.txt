@@ -1,0 +1,11 @@
+- mouseover displays extra data about the device
+
+- maybe login system that allows users to track their own device
+      - allow users to add devices and display them all at once
+      - uniquely identify devices by the mac address
+- register page
+- database to store the users
+      - the database should keep a table with the user, password(encrypted),
+        list of mac addresses associated (maybe allow just 1 device not to overcomplicate things)
+- also send the mac address from the android device
+- allow the user to pair a device by sending the mac address of that device

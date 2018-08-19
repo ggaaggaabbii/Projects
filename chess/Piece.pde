@@ -69,4 +69,21 @@ abstract class Piece {
     return false;
   }
   abstract HashSet<Pair<Integer, Integer>> getAvailablePositions(int[][] boardState, boolean isPlayerWhite);
+  
+  boolean canTake(int[][] boardState, int newX, int newY, boolean isPlayerWhite) {
+    if (boardState[newX][newY] < 0 && isPlayerWhite && this.isPieceWhite) {
+          //white piece over black piece
+          return true;
+        } else if (boardState[newX][newY] > 0 && !isPlayerWhite && this.isPieceWhite) {
+          //white piece over black piece from the oponent
+          return true;
+        } else if (boardState[newX][newY] > 0 && isPlayerWhite && !this.isPieceWhite) {
+          //black piece over white from oponent
+          return true;
+        } else if (boardState[newX][newY] < 0 && !isPlayerWhite && !this.isPieceWhite) {
+          //black piece over white
+          return true;
+        }
+    return false;
+  }
 }

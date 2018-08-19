@@ -9,11 +9,7 @@
   - if the player did not do an en passant before
   - if the position of the pawns is correct
   - available one turn only
-- pawn promotion support
-- make the game stop when the timer is done
-  - determine who won
-  - maybe give the option to start a new game 
-  - or just exit
+
 - funtion that determines all the posible moves for the current player
 - check and chekmate
   - make available moves also keep track of checks (not allow moves that lead in (still)

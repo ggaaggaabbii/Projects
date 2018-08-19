@@ -20,20 +20,7 @@ class Queen extends Piece {
         if (boardState[newX][newY] == 0) {
           //empty position
           avPos.add(new Pair<Integer, Integer>(newX, newY));
-        } else if (boardState[newX][newY] < 0 && isPlayerWhite && this.isPieceWhite) {
-          //white piece over black piece
-          avPos.add(new Pair<Integer, Integer>(newX, newY));
-          break;
-        } else if (boardState[newX][newY] > 0 && !isPlayerWhite && this.isPieceWhite) {
-          //white piece over black piece from the oponent
-          avPos.add(new Pair<Integer, Integer>(newX, newY));
-          break;
-        } else if (boardState[newX][newY] > 0 && isPlayerWhite && !this.isPieceWhite) {
-          //black piece over white from oponent
-          avPos.add(new Pair<Integer, Integer>(newX, newY));
-          break;
-        } else if (boardState[newX][newY] < 0 && !isPlayerWhite && !this.isPieceWhite) {
-          //black piece over white
+        } else if (canTake(boardState, newX, newY, isPlayerWhite)) {
           avPos.add(new Pair<Integer, Integer>(newX, newY));
           break;
         } else {

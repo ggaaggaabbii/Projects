@@ -13,7 +13,6 @@ class Board {
   Piece[] pieces;
   HashSet<Pair<Integer, Integer>> availablePositions;
 
-
   Board(float s) {
     hasPieceSelected = false;
     numberOfPieces = 32;
@@ -152,5 +151,74 @@ class Board {
         --numberOfPieces;
       }
     }
+  }
+  void promoteToBishop() {
+    int i = getPositionOfPromotablePawn();
+    //delete the pawn
+    Piece aux = pieces[i];
+    pieces[i] = pieces[numberOfPieces - 1];
+    //add a new bishop
+    pieces[numberOfPieces - 1] = new Bishop(
+      aux.posX, 
+      aux.posY, 
+      aux.boardSize, 
+      aux.isPieceWhite
+      );
+  }
+  void promoteToBKnight() {
+    int i = getPositionOfPromotablePawn();
+    //delete the pawn
+    Piece aux = pieces[i];
+    pieces[i] = pieces[numberOfPieces - 1];
+    //add a new bishop
+    pieces[numberOfPieces - 1] = new Knight(
+      aux.posX, 
+      aux.posY, 
+      aux.boardSize, 
+      aux.isPieceWhite
+      );
+  }
+  void promoteToRook() {
+    int i = getPositionOfPromotablePawn();
+    //delete the pawn
+    Piece aux = pieces[i];
+    pieces[i] = pieces[numberOfPieces - 1];
+    //add a new bishop
+    pieces[numberOfPieces - 1] = new Rook(
+      aux.posX, 
+      aux.posY, 
+      aux.boardSize, 
+      aux.isPieceWhite
+      );
+  }
+  void promoteToQueen() {
+    int i = getPositionOfPromotablePawn();
+    //delete the pawn
+    Piece aux = pieces[i];
+    pieces[i] = pieces[numberOfPieces - 1];
+    //add a new bishop
+    pieces[numberOfPieces - 1] = new Queen(
+      aux.posX, 
+      aux.posY, 
+      aux.boardSize, 
+      aux.isPieceWhite
+      );
+  }
+  boolean isPromotionAvailable() {
+    int i = getPositionOfPromotablePawn();
+    if (i != -1) {
+      return true;
+    }
+    return false;
+  }
+  int getPositionOfPromotablePawn() {
+    for (int i = 0; i < numberOfPieces; ++i) {
+      if (pieces[i] instanceof Pawn) {
+        if (pieces[i].posY == 0 || pieces[i].posY == 7) {
+          return i;
+        }
+      }
+    }
+    return -1;
   }
 }

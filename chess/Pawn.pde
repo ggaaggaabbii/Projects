@@ -30,17 +30,7 @@ class Pawn extends Piece {
       int newY = posY + yDirection;
       if (newX >= 0 && newX < 8 && newY < 8 && newY >= 0) {
         //piece is still inside the board
-        if (boardState[newX][newY] < 0 && isPlayerWhite && this.isPieceWhite) {
-          //white piece over black piece
-          avPos.add(new Pair<Integer, Integer>(newX, newY));
-        } else if (boardState[newX][newY] > 0 && !isPlayerWhite && this.isPieceWhite) {
-          //white piece over black piece from the oponent
-          avPos.add(new Pair<Integer, Integer>(newX, newY));
-        } else if (boardState[newX][newY] > 0 && isPlayerWhite && !this.isPieceWhite) {
-          //black piece over white from oponent
-          avPos.add(new Pair<Integer, Integer>(newX, newY));
-        } else if (boardState[newX][newY] < 0 && !isPlayerWhite && !this.isPieceWhite) {
-          //black piece over white
+        if (canTake(boardState, newX, newY, isPlayerWhite)) {
           avPos.add(new Pair<Integer, Integer>(newX, newY));
         }
       }

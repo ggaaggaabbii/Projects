@@ -14,6 +14,9 @@ class Board {
   HashSet<Pair<Integer, Integer>> availablePositions;
   LinkedList<Piece[]> historyOfMoves;
   King checkedKing;
+  //will be used to check the neighbours of the chekced king to ensure the other king is not the one causing the check
+  int[] nextX = {-1, 0, 1, 0, -1, 1, -1, 1};
+  int[] nextY = {0, 1, 0, -1, -1, 1, 1, -1};
 
   Board(float s) {
     hasPieceSelected = false;
@@ -90,69 +93,84 @@ class Board {
   }
   boolean changeTurn() {
     King lastChecked = checkedKing;
-    if (isCheck() && lastChecked == checkedKing) {
+    boolean isCheckResult = isCheck();
+    if (isCheckResult && lastChecked == checkedKing) {
       undo();
       return false;
-    } else if (isCheck() && checkedKing.isPieceWhite == isPlayerTurn) {
+    } else if (isCheckResult && (isPlayerTurn ^ isPlayerWhite ^ checkedKing.isPieceWhite)) {
       undo();
       return false;
+    } else if (isCheckResult && lastChecked != null) {
+      //counter check
+      undo();
+      return false;
+    } else if (isCheckResult) {
+      for (int i = 0; i < 8; ++i) {
+        Piece p = getPieceFromPosition(checkedKing.posX + nextX[i], checkedKing.posY + nextY[i]);
+        if (p!=null) {
+        }
+        if (p instanceof King) {
+          //kings came together
+          undo(); 
+          return false;
+        }
+      }
     }
-
-    isPlayerTurn = !isPlayerTurn;
+    isPlayerTurn = !isPlayerTurn; 
     return true;
   }
   void deselect() {
-    hasPieceSelected = false;
+    hasPieceSelected = false; 
     availablePositions.clear();
   }
   void select(Piece p) {
-    hasPieceSelected = true;
+    hasPieceSelected = true; 
     availablePositions = p.getAvailablePositions(this.getBoardState(), isPlayerWhite);
   }
   void setupKnights() {
     //initialize the knights
-    pieces[16] = new Knight(1, 7, sizeOfBlock, isPlayerWhite);
-    pieces[17] = new Knight(1, 0, sizeOfBlock, !isPlayerWhite);
-    pieces[18] = new Knight(6, 7, sizeOfBlock, isPlayerWhite);
+    pieces[16] = new Knight(1, 7, sizeOfBlock, isPlayerWhite); 
+    pieces[17] = new Knight(1, 0, sizeOfBlock, !isPlayerWhite); 
+    pieces[18] = new Knight(6, 7, sizeOfBlock, isPlayerWhite); 
     pieces[19] = new Knight(6, 0, sizeOfBlock, !isPlayerWhite);
   }
   void setupRooks() {
     //initialize the rooks
-    pieces[20] = new Rook(0, 7, sizeOfBlock, isPlayerWhite);
-    pieces[21] = new Rook(0, 0, sizeOfBlock, !isPlayerWhite);
-    pieces[22] = new Rook(7, 7, sizeOfBlock, isPlayerWhite);
+    pieces[20] = new Rook(0, 7, sizeOfBlock, isPlayerWhite); 
+    pieces[21] = new Rook(0, 0, sizeOfBlock, !isPlayerWhite); 
+    pieces[22] = new Rook(7, 7, sizeOfBlock, isPlayerWhite); 
     pieces[23] = new Rook(7, 0, sizeOfBlock, !isPlayerWhite);
   }
   void setupKingsAndQueens() {
     //initialize the kings
     if (isPlayerWhite) {
-      pieces[24] = new King(4, 7, sizeOfBlock, isPlayerWhite);
-      pieces[25] = new King(4, 0, sizeOfBlock, !isPlayerWhite);
-      pieces[26] = new Queen(3, 7, sizeOfBlock, isPlayerWhite);
+      pieces[24] = new King(4, 7, sizeOfBlock, isPlayerWhite); 
+      pieces[25] = new King(4, 0, sizeOfBlock, !isPlayerWhite); 
+      pieces[26] = new Queen(3, 7, sizeOfBlock, isPlayerWhite); 
       pieces[27] = new Queen(3, 0, sizeOfBlock, !isPlayerWhite);
     } else {
-      pieces[24] = new King(3, 7, sizeOfBlock, isPlayerWhite);
-      pieces[25] = new King(3, 0, sizeOfBlock, !isPlayerWhite);
-      pieces[26] = new Queen(4, 7, sizeOfBlock, isPlayerWhite);
+      pieces[24] = new King(3, 7, sizeOfBlock, isPlayerWhite); 
+      pieces[25] = new King(3, 0, sizeOfBlock, !isPlayerWhite); 
+      pieces[26] = new Queen(4, 7, sizeOfBlock, isPlayerWhite); 
       pieces[27] = new Queen(4, 0, sizeOfBlock, !isPlayerWhite);
     }
   }
   void setupBishops() {
-    pieces[28] = new Bishop(2, 7, sizeOfBlock, isPlayerWhite);
-    pieces[29] = new Bishop(5, 7, sizeOfBlock, isPlayerWhite);
-    pieces[30] = new Bishop(2, 0, sizeOfBlock, !isPlayerWhite);
+    pieces[28] = new Bishop(2, 7, sizeOfBlock, isPlayerWhite); 
+    pieces[29] = new Bishop(5, 7, sizeOfBlock, isPlayerWhite); 
+    pieces[30] = new Bishop(2, 0, sizeOfBlock, !isPlayerWhite); 
     pieces[31] = new Bishop(5, 0, sizeOfBlock, !isPlayerWhite);
   }
   void setupPawns() {
     //initialize the pawns
     for (int i = 0; i < 8; ++i) {
-      pieces[i] = new Pawn(i, 6, sizeOfBlock, isPlayerWhite);
+      pieces[i] = new Pawn(i, 6, sizeOfBlock, isPlayerWhite); 
       pieces[i + 8] = new Pawn(i, 1, sizeOfBlock, !isPlayerWhite);
     }
   }
 
   int[][] getBoardState() {
-    int[][] board = new int[8][8];
+    int[][] board = new int[8][8]; 
     for (int i = 0; i < numberOfPieces; ++i) {
       if ((isPlayerWhite && pieces[i].isPieceWhite) || (!isPlayerWhite && !pieces[i].isPieceWhite)) {
         board[pieces[i].posX][pieces[i].posY] = pieces[i].value;
@@ -165,16 +183,16 @@ class Board {
   void take(Piece p) {
     for (int i = 0; i < numberOfPieces; ++i) {
       if (pieces[i] != p && pieces[i].posX == p.posX && pieces[i].posY == p.posY) {
-        pieces[i] = pieces[numberOfPieces - 1];
+        pieces[i] = pieces[numberOfPieces - 1]; 
         --numberOfPieces;
       }
     }
   }
   void promoteToBishop() {
-    int i = getPositionOfPromotablePawn();
+    int i = getPositionOfPromotablePawn(); 
     //delete the pawn
-    Piece aux = pieces[i];
-    pieces[i] = pieces[numberOfPieces - 1];
+    Piece aux = pieces[i]; 
+    pieces[i] = pieces[numberOfPieces - 1]; 
     //add a new bishop
     pieces[numberOfPieces - 1] = new Bishop(
       aux.posX, 
@@ -184,10 +202,10 @@ class Board {
       );
   }
   void promoteToBKnight() {
-    int i = getPositionOfPromotablePawn();
+    int i = getPositionOfPromotablePawn(); 
     //delete the pawn
-    Piece aux = pieces[i];
-    pieces[i] = pieces[numberOfPieces - 1];
+    Piece aux = pieces[i]; 
+    pieces[i] = pieces[numberOfPieces - 1]; 
     //add a new bishop
     pieces[numberOfPieces - 1] = new Knight(
       aux.posX, 
@@ -197,10 +215,10 @@ class Board {
       );
   }
   void promoteToRook() {
-    int i = getPositionOfPromotablePawn();
+    int i = getPositionOfPromotablePawn(); 
     //delete the pawn
-    Piece aux = pieces[i];
-    pieces[i] = pieces[numberOfPieces - 1];
+    Piece aux = pieces[i]; 
+    pieces[i] = pieces[numberOfPieces - 1]; 
     //add a new bishop
     pieces[numberOfPieces - 1] = new Rook(
       aux.posX, 
@@ -210,10 +228,10 @@ class Board {
       );
   }
   void promoteToQueen() {
-    int i = getPositionOfPromotablePawn();
+    int i = getPositionOfPromotablePawn(); 
     //delete the pawn
-    Piece aux = pieces[i];
-    pieces[i] = pieces[numberOfPieces - 1];
+    Piece aux = pieces[i]; 
+    pieces[i] = pieces[numberOfPieces - 1]; 
     //add a new bishop
     pieces[numberOfPieces - 1] = new Queen(
       aux.posX, 
@@ -223,7 +241,7 @@ class Board {
       );
   }
   boolean isPromotionAvailable() {
-    int i = getPositionOfPromotablePawn();
+    int i = getPositionOfPromotablePawn(); 
     if (i != -1) {
       return true;
     }
@@ -239,41 +257,62 @@ class Board {
     }
     return -1;
   }
-  HashSet<Pair<Integer, Integer>> getAllAvailableMoves() {
-    HashSet<Pair<Integer, Integer>> avPos = new HashSet<Pair<Integer, Integer>>();
+  HashSet<Pair<Integer, Pair<Integer, Boolean>>> getAllAvailableAttackMoves() {
+    HashSet<Pair<Integer, Pair<Integer, Boolean>>> avPos = new HashSet<Pair<Integer, Pair<Integer, Boolean>>>(); 
     for (int i = 0; i < numberOfPieces; ++i) {
-      for (Pair<Integer, Integer> p : pieces[i].getAvailablePositions(getBoardState(), isPlayerWhite)) {
-        avPos.add(new Pair<Integer, Integer>(p.getKey(), p.getValue()));
+      for (Pair<Integer, Integer > p : pieces[i].getAvailablePositions(getBoardState(), isPlayerWhite)) {
+        Pair<Integer, Boolean> a = new Pair<Integer, Boolean>(p.getValue(), pieces[i].isPieceWhite); 
+        avPos.add(new Pair<Integer, Pair<Integer, Boolean>>(p.getKey(), a));
+      }
+      if (pieces[i] instanceof Pawn) {
+        //pawns attack diagonally
+        Pawn p = (Pawn)pieces[i]; 
+        Pair<Integer, Boolean> a = new Pair<Integer, Boolean>(p.posY + p.yDirection, pieces[i].isPieceWhite); 
+        avPos.add(new Pair<Integer, Pair<Integer, Boolean>>(p.posX + 1, a)); 
+        a = new Pair<Integer, Boolean>(p.posY + p.yDirection, pieces[i].isPieceWhite); 
+        avPos.add(new Pair<Integer, Pair<Integer, Boolean>>(p.posX - 1, a));
       }
     }
     return avPos;
   }
   boolean isCheck() {
-    HashSet<Pair<Integer, Integer>> avPos = getAllAvailableMoves();
+    HashSet<Pair<Integer, Pair<Integer, Boolean>>> avPos = getAllAvailableAttackMoves(); 
     for (int i = 0; i < numberOfPieces; ++i) {
-      if (avPos.contains(new Pair<Integer, Integer>(pieces[i].posX, pieces[i].posY))) {
+      Pair<Integer, Boolean> a = new Pair<Integer, Boolean>(pieces[i].posY, !pieces[i].isPieceWhite); 
+      if (avPos.contains(new Pair<Integer, Pair<Integer, Boolean>>(pieces[i].posX, a))) {
         if (pieces[i] instanceof King) {
-          checkedKing = (King)pieces[i];
+          checkedKing = (King)pieces[i]; 
           return true;
         }
       }
     }
     return false;
   }
-  void undo() {
+  boolean undo() {
     if (historyOfMoves.size() > 0) {
-      pieces = historyOfMoves.pollLast();
+      pieces = historyOfMoves.pollLast(); 
+      numberOfPieces = max(numberOfPieces, pieces.length); 
+      return true;
     }
-    numberOfPieces = max(numberOfPieces, pieces.length);
+    return false;
   }
   void storeState() {
-    Piece[] currentState = new Piece[numberOfPieces];
+    Piece[] currentState = new Piece[numberOfPieces]; 
     for (int i = 0; i < numberOfPieces; ++i) {
       currentState[i] = pieces[i].clone();
     }
-    historyOfMoves.add(currentState);
+    historyOfMoves.add(currentState); 
     if (historyOfMoves.size() > 10) {
+      //keep only the last 10 moves
       historyOfMoves.pollFirst();
     }
+  }
+  Piece getPieceFromPosition(int x, int y) {
+    for (int i = 0; i < numberOfPieces; ++i) {
+      if (pieces[i].posX == x && pieces[i].posY == y) {
+        return pieces[i];
+      }
+    }
+    return null;
   }
 }

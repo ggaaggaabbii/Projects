@@ -47,6 +47,7 @@ class Pawn extends Piece {
   }
   Pawn clone() {
     Pawn p = new Pawn(posX, posY, boardSize, isPieceWhite);
+    p.wasMoved = wasMoved;
     return p;
   }
 }

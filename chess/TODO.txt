@@ -10,15 +10,12 @@
   - if the position of the pawns is correct
   - available one turn only
 
-- function that determines all the possible moves for the current player
-- check and checkmate
-  - make available moves also keep track of checks (not allow moves that lead in (still)
-						    being in check)
+-checkmate
   - checkmate - no available moves and in check
 -stall
   - no available moves but not in check
+
 - theme change support
 - ai
 - multiplayer
 - login system with databases
-- undo functionality

@@ -31,6 +31,7 @@ class King extends Piece {
   }
   King clone() {
     King k = new King(posX, posY, boardSize, isPieceWhite);
+    k.wasMoved = wasMoved;
     return k;
   }
 }

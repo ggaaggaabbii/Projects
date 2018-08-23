@@ -2,6 +2,7 @@ import java.util.HashSet;
 import javafx.util.Pair;
 import java.util.concurrent.TimeUnit;
 import java.util.LinkedList;
+import java.awt.event.KeyEvent;
 
 Board b;
 float s; //size of a block on the board
@@ -9,6 +10,8 @@ StopWatchTimer timerPlayer, timerOpponent;
 boolean isGameDone;
 boolean playerWon;
 boolean isPawnPromotionAvailable;
+boolean ctrlPressed = false;
+boolean zPressed = false;
 void setup() {
   size(800, 640);
   rectMode(CENTER);
@@ -83,8 +86,15 @@ void mousePressed() {
               timerPlayer.stop();
               timerOpponent.restart();
             }
+          } else {
+            //the move could not be made
+            b.historyOfMoves.pollLast();
           }
+        } else {
+          //the move could not be made
+          b.historyOfMoves.pollLast();
         }
+
         b.pieces[i].deselect();
         b.deselect();
         break;
@@ -118,6 +128,33 @@ void keyPressed() {
     b.promoteToQueen();
     isPawnPromotionAvailable = false;
   }
+
+
+  if (keyCode == CONTROL) { 
+    ctrlPressed = true;
+  }
+  if (keyCode == 90) { 
+    //z
+    zPressed = true;
+  }
+
+  if (ctrlPressed && zPressed) {
+    if (b.undo()) {
+      b.changeTurn();
+      if (b.isPlayerTurn) {
+        timerPlayer.restart();
+        timerOpponent.stop();
+      } else {
+        timerPlayer.stop();
+        timerOpponent.restart();
+      }
+    }
+  }
+}
+
+void keyReleased() {
+  ctrlPressed = false;
+  zPressed = false;
 }
 
 void showPromotionLog() {

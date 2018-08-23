@@ -34,7 +34,8 @@ class Rook extends Piece {
     return avPos;
   }
   Rook clone() {
-    Rook p = new Rook(posX, posY, boardSize, isPieceWhite);
-    return p;
+    Rook r = new Rook(posX, posY, boardSize, isPieceWhite);
+    r.wasMoved = wasMoved;
+    return r;
   }
 }

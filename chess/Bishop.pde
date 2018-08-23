@@ -33,4 +33,9 @@ class Bishop extends Piece {
     }
     return avPos;
   }
+  
+  Bishop clone() {
+    Bishop b = new Bishop(posX, posY, boardSize, isPieceWhite);
+    return b;
+  }
 }

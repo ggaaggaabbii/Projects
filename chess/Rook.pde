@@ -33,4 +33,8 @@ class Rook extends Piece {
     }
     return avPos;
   }
+  Rook clone() {
+    Rook p = new Rook(posX, posY, boardSize, isPieceWhite);
+    return p;
+  }
 }

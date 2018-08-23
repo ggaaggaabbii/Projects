@@ -1,6 +1,7 @@
 import java.util.HashSet;
 import javafx.util.Pair;
 import java.util.concurrent.TimeUnit;
+import java.util.LinkedList;
 
 Board b;
 float s; //size of a block on the board
@@ -67,23 +68,25 @@ void mousePressed() {
   if (!isPawnPromotionAvailable) {
     //select a piece
     for (int i = 0; i < b.numberOfPieces; ++i) {
-      if  (b.pieces[i].isSelected()) {
+      if (b.pieces[i].isSelected()) {
+        b.storeState();
         if (b.pieces[i].move(mouseX, mouseY)) {
-          b.changeTurn();
-          if (b.isPromotionAvailable()) {
-            isPawnPromotionAvailable = true;
-          }
-          if (b.isPlayerTurn) {
-            timerPlayer.restart();
-            timerOpponent.stop();
-          } else {
-            timerPlayer.stop();
-            timerOpponent.restart();
+          b.take(b.pieces[i]);
+          if (b.changeTurn()) {
+            if (b.isPromotionAvailable()) {
+              isPawnPromotionAvailable = true;
+            }
+            if (b.isPlayerTurn) {
+              timerPlayer.restart();
+              timerOpponent.stop();
+            } else {
+              timerPlayer.stop();
+              timerOpponent.restart();
+            }
           }
         }
         b.pieces[i].deselect();
         b.deselect();
-        b.take(b.pieces[i]);
         break;
       } else if (b.pieces[i].colides(mouseX, mouseY) && !b.hasPieceSelected) {
         if ((b.isPlayerTurn && b.isPlayerWhite == b.pieces[i].isPieceWhite) || 
@@ -99,15 +102,19 @@ void mousePressed() {
 
 void keyPressed() {
   if (keyCode == 49) {
+    //1
     b.promoteToBishop();
     isPawnPromotionAvailable = false;
   } else if (keyCode == 50) {
+    //2
     b.promoteToBKnight();
     isPawnPromotionAvailable = false;
   } else if (keyCode == 51) {
+    //3
     b.promoteToRook();
     isPawnPromotionAvailable = false;
   } else if (keyCode == 52) {
+    //4
     b.promoteToQueen();
     isPawnPromotionAvailable = false;
   }

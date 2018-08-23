@@ -3,7 +3,7 @@ abstract class Piece {
   int posY;
   int value;
   float boardSize;
-  boolean selected = false;
+  boolean selected;
   boolean isPieceWhite;
   boolean wasMoved;
   PImage img;
@@ -16,6 +16,7 @@ abstract class Piece {
     isPieceWhite = isWhite;
     availablePositions = new HashSet<Pair<Integer, Integer>>();
     wasMoved = false;
+    selected = false;
   }
 
   void display() {
@@ -69,6 +70,7 @@ abstract class Piece {
     return false;
   }
   abstract HashSet<Pair<Integer, Integer>> getAvailablePositions(int[][] boardState, boolean isPlayerWhite);
+  abstract Piece clone();
   
   boolean canTake(int[][] boardState, int newX, int newY, boolean isPlayerWhite) {
     if (boardState[newX][newY] < 0 && isPlayerWhite && this.isPieceWhite) {

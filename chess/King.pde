@@ -29,4 +29,8 @@ class King extends Piece {
     }
     return avPos;
   }
+  King clone() {
+    King k = new King(posX, posY, boardSize, isPieceWhite);
+    return k;
+  }
 }

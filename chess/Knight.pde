@@ -30,4 +30,8 @@ class Knight extends Piece {
     }
     return avPos;
   }
+  Knight clone() {
+    Knight k = new Knight(posX, posY, boardSize, isPieceWhite);
+    return k;
+  }
 }

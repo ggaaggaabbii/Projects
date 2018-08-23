@@ -33,4 +33,8 @@ class Queen extends Piece {
     }
     return avPos;
   }
+  Queen clone() {
+    Queen p = new Queen(posX, posY, boardSize, isPieceWhite);
+    return p;
+  }
 }

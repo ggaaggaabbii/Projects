@@ -12,6 +12,8 @@ class Board {
   boolean isPlayerTurn;
   Piece[] pieces;
   HashSet<Pair<Integer, Integer>> availablePositions;
+  LinkedList<Piece[]> historyOfMoves;
+  King checkedKing;
 
   Board(float s) {
     hasPieceSelected = false;
@@ -32,6 +34,7 @@ class Board {
 
     pieces = new Piece[32];
     availablePositions = new HashSet<Pair<Integer, Integer>>();
+    historyOfMoves = new LinkedList<Piece[]>();
 
     setupPawns();
     setupKnights();
@@ -48,7 +51,7 @@ class Board {
     float boardY;
     boolean currentCol = true;
     int[][] board = this.getBoardState();
-    for (int i = 0; i<size; ++i) {
+    for (int i = 0; i < size; ++i) {
       currentX = initialX;
       for (int j = 0; j < size; ++j) {
         if (currentCol) {
@@ -65,6 +68,11 @@ class Board {
       currentCol = !currentCol;
     }
     //display available positions
+    if (isCheck()) {
+      availablePositions.add(new Pair<Integer, Integer>(checkedKing.posX, checkedKing.posY));
+    } else {
+      checkedKing = null;
+    }
     for (Pair<Integer, Integer> p : availablePositions) {
       boardX = p.getKey() * sizeOfBlock + sizeOfBlock / 2;
       boardY = p.getValue() * sizeOfBlock + sizeOfBlock / 2;
@@ -80,8 +88,18 @@ class Board {
       pieces[i].display();
     }
   }
-  void changeTurn() {
+  boolean changeTurn() {
+    King lastChecked = checkedKing;
+    if (isCheck() && lastChecked == checkedKing) {
+      undo();
+      return false;
+    } else if (isCheck() && checkedKing.isPieceWhite == isPlayerTurn) {
+      undo();
+      return false;
+    }
+
     isPlayerTurn = !isPlayerTurn;
+    return true;
   }
   void deselect() {
     hasPieceSelected = false;
@@ -220,5 +238,42 @@ class Board {
       }
     }
     return -1;
+  }
+  HashSet<Pair<Integer, Integer>> getAllAvailableMoves() {
+    HashSet<Pair<Integer, Integer>> avPos = new HashSet<Pair<Integer, Integer>>();
+    for (int i = 0; i < numberOfPieces; ++i) {
+      for (Pair<Integer, Integer> p : pieces[i].getAvailablePositions(getBoardState(), isPlayerWhite)) {
+        avPos.add(new Pair<Integer, Integer>(p.getKey(), p.getValue()));
+      }
+    }
+    return avPos;
+  }
+  boolean isCheck() {
+    HashSet<Pair<Integer, Integer>> avPos = getAllAvailableMoves();
+    for (int i = 0; i < numberOfPieces; ++i) {
+      if (avPos.contains(new Pair<Integer, Integer>(pieces[i].posX, pieces[i].posY))) {
+        if (pieces[i] instanceof King) {
+          checkedKing = (King)pieces[i];
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  void undo() {
+    if (historyOfMoves.size() > 0) {
+      pieces = historyOfMoves.pollLast();
+    }
+    numberOfPieces = max(numberOfPieces, pieces.length);
+  }
+  void storeState() {
+    Piece[] currentState = new Piece[numberOfPieces];
+    for (int i = 0; i < numberOfPieces; ++i) {
+      currentState[i] = pieces[i].clone();
+    }
+    historyOfMoves.add(currentState);
+    if (historyOfMoves.size() > 10) {
+      historyOfMoves.pollFirst();
+    }
   }
 }

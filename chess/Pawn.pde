@@ -19,10 +19,18 @@ class Pawn extends Piece {
     } else {
       yDirection = 1;
     }
+
     if (boardState[posX][posY + yDirection] == 0) {
-      avPos.add(new Pair<Integer, Integer>(posX, posY + yDirection));
+      int newX = posX;
+      int newY = posY + yDirection;
+      if (!canTake(boardState, newX, newY, isPlayerWhite)) {
+        avPos.add(new Pair<Integer, Integer>(newX, newY));
+      }
       if (!wasMoved) {
-        avPos.add(new Pair<Integer, Integer>(posX, posY + 2 * yDirection));
+        newY += yDirection;
+        if (!canTake(boardState, newX, newY, isPlayerWhite)) {
+          avPos.add(new Pair<Integer, Integer>(newX, newY));
+        }
       }
     }
     for (int i = 0; i < 2; ++i) {
@@ -36,5 +44,9 @@ class Pawn extends Piece {
       }
     }
     return avPos;
+  }
+  Pawn clone() {
+    Pawn p = new Pawn(posX, posY, boardSize, isPieceWhite);
+    return p;
   }
 }

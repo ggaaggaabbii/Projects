@@ -12,6 +12,7 @@ boolean playerWon;
 boolean isPawnPromotionAvailable;
 boolean ctrlPressed = false;
 boolean zPressed = false;
+boolean isCastlingAvailable = false;
 void setup() {
   size(800, 640);
   rectMode(CENTER);
@@ -39,10 +40,6 @@ void draw() {
     }
     System.exit(0);
   }
-  if (isPawnPromotionAvailable) {
-    showPromotionLog();
-    return;
-  }
   background(200);
   b.display();
   timerPlayer.display();
@@ -65,36 +62,29 @@ void draw() {
     isGameDone = true;
     playerWon = true;
   }
+  if (isCastlingAvailable) {
+    showCastlingLog();
+    return;
+  }
+  if (isPawnPromotionAvailable) {
+    showPromotionLog();
+    return;
+  }
 }
 
 void mousePressed() {
-  if (!isPawnPromotionAvailable) {
+  if (!isPawnPromotionAvailable && !isCastlingAvailable) {
     //select a piece
     for (int i = 0; i < b.numberOfPieces; ++i) {
       if (b.pieces[i].isSelected()) {
         b.storeState();
         if (b.pieces[i].move(mouseX, mouseY)) {
           b.take(b.pieces[i]);
-          if (b.changeTurn()) {
-            if (b.isPromotionAvailable()) {
-              isPawnPromotionAvailable = true;
-            }
-            if (b.isPlayerTurn) {
-              timerPlayer.restart();
-              timerOpponent.stop();
-            } else {
-              timerPlayer.stop();
-              timerOpponent.restart();
-            }
-          } else {
-            //the move could not be made
-            b.historyOfMoves.pollLast();
-          }
+          changeTurn();
         } else {
           //the move could not be made
-          b.historyOfMoves.pollLast();
+          b.undo();
         }
-
         b.pieces[i].deselect();
         b.deselect();
         break;
@@ -111,42 +101,49 @@ void mousePressed() {
 }
 
 void keyPressed() {
-  if (keyCode == 49) {
-    //1
-    b.promoteToBishop();
+  if (isPawnPromotionAvailable) {
+    if (keyCode == '1') {
+      b.promoteToBishop();
+    } else if (keyCode == '2') {
+      b.promoteToBKnight();
+    } else if (keyCode == '3') {
+      b.promoteToRook();
+    } else if (keyCode == '4') {
+      b.promoteToQueen();
+    }
     isPawnPromotionAvailable = false;
-  } else if (keyCode == 50) {
-    //2
-    b.promoteToBKnight();
-    isPawnPromotionAvailable = false;
-  } else if (keyCode == 51) {
-    //3
-    b.promoteToRook();
-    isPawnPromotionAvailable = false;
-  } else if (keyCode == 52) {
-    //4
-    b.promoteToQueen();
-    isPawnPromotionAvailable = false;
-  }
-
-
-  if (keyCode == CONTROL) { 
-    ctrlPressed = true;
-  }
-  if (keyCode == 90) { 
-    //z
-    zPressed = true;
-  }
-
-  if (ctrlPressed && zPressed) {
-    if (b.undo()) {
-      b.changeTurn();
-      if (b.isPlayerTurn) {
-        timerPlayer.restart();
-        timerOpponent.stop();
+  } else if (isCastlingAvailable) {
+    if (keyCode == '1') {
+      isCastlingAvailable = false;
+      b.storeState();
+      if (b.setCastling(1)) {
+        changeTurn();
       } else {
-        timerPlayer.stop();
-        timerOpponent.restart();
+        b.undo();
+      }
+    } else if (keyCode == '0') {
+      isCastlingAvailable = false;
+    } else if (keyCode == '2') {
+      isCastlingAvailable = false;
+      b.storeState();
+      if (b.setCastling(2)) {
+        changeTurn();
+      } else {
+        b.undo();
+      }
+    }
+  } else {
+
+    if (keyCode == CONTROL) { 
+      ctrlPressed = true;
+    }
+    if (keyCode == 'Z') { 
+      zPressed = true;
+    }
+
+    if (ctrlPressed && zPressed) {
+      if (b.undo()) {
+        changeTurn();
       }
     }
   }
@@ -158,12 +155,43 @@ void keyReleased() {
 }
 
 void showPromotionLog() {
-  background(255);
+  fill(255, 150);
+  rect(width / 2, height / 2, width, height);
   fill(0);
   textSize(32);
-  text("Pick a piece:", 100, 50);
-  text("1. Bishop", 100, 100);
-  text("2. Knight", 100, 150);
-  text("3. Rook", 100, 200);
-  text("4. Queen", 100, 250);
+  text("Pick a piece:", 100, 100);
+  text("1. Bishop", 100, 150);
+  text("2. Knight", 100, 200);
+  text("3. Rook", 100, 250);
+  text("4. Queen", 100, 300);
+}
+void showCastlingLog() {
+  fill(255, 150);
+  rect(width / 2, height / 2, width, height);
+  fill(0);
+  textSize(32);
+  text("Want to do the castling?", 100, height / 2 - 100);
+  text("0. No", 100, height / 2 - 50);
+  text("1. Right Castling", 100, height / 2);
+  text("2. Left Castling", 100, height / 2 + 50);
+}
+void changeTimerTurn() {
+  if (b.isPlayerTurn) {
+    timerPlayer.restart();
+    timerOpponent.stop();
+  } else {
+    timerPlayer.stop();
+    timerOpponent.restart();
+  }
+}
+void changeTurn() {
+  if (b.changeTurn()) {
+    if (b.isPromotionAvailable()) {
+      isPawnPromotionAvailable = true;
+    }
+    if (b.isCaslingAvailable()) {
+      isCastlingAvailable = true;
+    }
+    changeTimerTurn();
+  }
 }

@@ -20,15 +20,15 @@ class Pawn extends Piece {
       yDirection = 1;
     }
 
-    if (boardState[posX][posY + yDirection] == 0) {
+    if (posY + yDirection >= 0 && posY + yDirection < 8 && boardState[posX][posY + yDirection] == 0) {
       int newX = posX;
       int newY = posY + yDirection;
-      if (!canTake(boardState, newX, newY, isPlayerWhite)) {
+      if (boardState[newX][newY] == 0) {
         avPos.add(new Pair<Integer, Integer>(newX, newY));
       }
       if (!wasMoved) {
         newY += yDirection;
-        if (!canTake(boardState, newX, newY, isPlayerWhite)) {
+        if (boardState[newX][newY] == 0) {
           avPos.add(new Pair<Integer, Integer>(newX, newY));
         }
       }

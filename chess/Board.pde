@@ -10,9 +10,12 @@ class Board {
   boolean hasPieceSelected;
   boolean isPlayerWhite;
   boolean isPlayerTurn;
+  boolean didPlayerCastling;
+  boolean didOpponentCastling;
   Piece[] pieces;
   HashSet<Pair<Integer, Integer>> availablePositions;
   LinkedList<Piece[]> historyOfMoves;
+  LinkedList<Pair<Boolean, Boolean>> historyOfCastling;
   King checkedKing;
   //will be used to check the neighbours of the chekced king to ensure the other king is not the one causing the check
   int[] nextX = {-1, 0, 1, 0, -1, 1, -1, 1};
@@ -38,6 +41,9 @@ class Board {
     pieces = new Piece[32];
     availablePositions = new HashSet<Pair<Integer, Integer>>();
     historyOfMoves = new LinkedList<Piece[]>();
+    historyOfCastling = new LinkedList<Pair<Boolean, Boolean>>();
+    didPlayerCastling = false;
+    didOpponentCastling = false;
 
     setupPawns();
     setupKnights();
@@ -107,7 +113,7 @@ class Board {
     } else if (isCheckResult) {
       for (int i = 0; i < 8; ++i) {
         Piece p = getPieceFromPosition(checkedKing.posX + nextX[i], checkedKing.posY + nextY[i]);
-        if (p!=null) {
+        if (p != null) {
         }
         if (p instanceof King) {
           //kings came together
@@ -292,6 +298,10 @@ class Board {
     if (historyOfMoves.size() > 0) {
       pieces = historyOfMoves.pollLast(); 
       numberOfPieces = max(numberOfPieces, pieces.length); 
+      Pair<Boolean, Boolean> castling = historyOfCastling.pollLast();
+      didPlayerCastling = castling.getKey();
+      didOpponentCastling = castling.getValue();
+      availablePositions.clear();
       return true;
     }
     return false;
@@ -302,9 +312,11 @@ class Board {
       currentState[i] = pieces[i].clone();
     }
     historyOfMoves.add(currentState); 
+    historyOfCastling.add(new Pair<Boolean, Boolean>(didPlayerCastling, didOpponentCastling));
     if (historyOfMoves.size() > 10) {
       //keep only the last 10 moves
       historyOfMoves.pollFirst();
+      historyOfCastling.pollFirst();
     }
   }
   Piece getPieceFromPosition(int x, int y) {
@@ -314,5 +326,109 @@ class Board {
       }
     }
     return null;
+  }
+
+  boolean isCaslingAvailable() {
+    Piece p;
+    if (didPlayerCastling && isPlayerTurn) {
+      return false;
+    }
+    if (didOpponentCastling && !isPlayerTurn) {
+      return false;
+    }
+    //get the king
+    if (isPlayerTurn) {
+      if (isPlayerWhite) {
+        p = getPieceFromPosition(4, 7);
+      } else {
+        p = getPieceFromPosition(3, 7);
+      }
+    } else {
+      if (isPlayerWhite) {
+        p = getPieceFromPosition(4, 0);
+      } else {
+        p = getPieceFromPosition(3, 0);
+      }
+    }
+    if (p == null || !(p instanceof King)) {
+      return false;
+    }
+    if (p.wasMoved) {
+      return false;
+    }
+    return canCastleRight((King)p) || canCastleLeft((King)p);
+  }
+  boolean setCastling(int side) {
+    Piece king, rook;
+    //get the king
+    if (isPlayerTurn) {
+      if (isPlayerWhite) {
+        king = getPieceFromPosition(4, 7);
+      } else {
+        king = getPieceFromPosition(3, 7);
+      }
+    } else {
+      if (isPlayerWhite) {
+        king = getPieceFromPosition(4, 0);
+      } else {
+        king = getPieceFromPosition(3, 0);
+      }
+    }
+    if (side == 2) {
+      if (canCastleLeft((King)king)) {
+        king.posX = king.posX - 2;
+        rook = getPieceFromPosition(0, king.posY);
+        rook.posX = king.posX + 1;
+        if (isPlayerTurn) {
+          didPlayerCastling = true;
+        } else {
+          didOpponentCastling = true;
+        }
+      }
+    } else {
+      if (canCastleRight((King)king)) {
+        king.posX = king.posX + 2;
+        rook = getPieceFromPosition(7, king.posY);
+        rook.posX = king.posX - 1;
+        if (isPlayerTurn) {
+          didPlayerCastling = true;
+        } else {
+          didOpponentCastling = true;
+        }
+      }
+    }
+    return true;
+  }
+  boolean canCastleRight(King k) {
+    Piece p;
+    for (int i = k.posX + 1; i < 7; ++i) {
+      if (getPieceFromPosition(i, k.posY) != null) {
+        return false;
+      }
+    }
+    p = getPieceFromPosition(7, k.posY);
+    if (p == null || !(p instanceof Rook)) {
+      return false;
+    }
+    if (p.wasMoved) {
+      return false;
+    }
+    return true;
+  }
+  boolean canCastleLeft(King k) {
+    Piece p;
+    for (int i = k.posX - 1; i > 0; --i) {
+      if (getPieceFromPosition(i, k.posY) != null) {
+        return false;
+      }
+    }
+    p = getPieceFromPosition(0, k.posY);
+    if (p == null || !(p instanceof Rook)) {
+      return false;
+    }
+    if (p.wasMoved) {
+      return false;
+    }
+    return true;
   }
 }
